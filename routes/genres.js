@@ -1,5 +1,23 @@
 // database holding the movie genres
-const database = require("../database");
+const mongoose = require("mongoose");
+
+mongoose
+  .connect("mongodb://localhost/vidly", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to MongoDB..."))
+  .catch((error) => console.error(error.message));
+
+// Create database Schema
+const movieSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+  },
+});
+
+const Genres = mongoose.model("Genres", movieSchema);
 
 const Joi = require("joi");
 const express = require("express");
@@ -8,73 +26,90 @@ const router = express.Router();
 
 //function to validate users input using Joi
 function validateInput(item) {
+  const schema = Joi.object({
+    id: Joi.string().required(),
+  });
+  const { error, value } = schema.validate(item);
+  return error;
+};
 
-    const schema = Joi.object({
-        id: Joi.string().required()
-    });
-    const {
-        error,
-        value
-    } = schema.validate(item);
-    return error;
-
-}
 
 // get the a particular movie genre
 router.get("/:id", (req, res) => {
-    const movieGenre = database.find((movie) => movie.id === req.params.id);
+  async function getGenre() {
+    const genres = await Genres.find();
 
-    if (!movieGenre) return res.status(404).send("Genre of movie not available");
+    const movieGenre = genres.find((obj) => obj.id === req.params.id);
 
-    res.send(movieGenre.id);
+    if (!movieGenre)
+      return res.status(404).send("Genre of movie not available");
+
+    res.send(movieGenre);
+  }
+  getGenre();
 });
+
 
 //add a new genre to the catalogue
 router.post("/", (req, res) => {
+  const validate = validateInput(req.body);
+  if (validate) return res.status(400).send(validate.details[0].message);
 
-    const validate = validateInput(req.body);
-    if (validate) return res.status(400).send(validate.details[0].message);
+  async function createGenres() {
+    const genres = await Genres.find();
 
-    const movieGenre = database.find((movie) => movie.id === req.body.id);
+    const movieGenre = genres.find((obj) => obj.id === req.body.id);
 
-    if (movieGenre) {
-        res.status(302).redirect(`/api/genres/${movieGenre.id}`);
-    } else {
-        const newGenre = {
-            id: req.body.id
-        };
-        database.push(newGenre);
-        return res.send(newGenre);
-    }
+    if (movieGenre)
+      return res.status(302).redirect(`/api/genres/${movieGenre.id}`);
+
+    const newGenre = new Genres({
+      id: req.body.id,
+    });
+    const result = await newGenre.save();
+    return res.send(result);
+  }
+  createGenres();
 });
+
 
 //edit and change the name of genre
 router.put("/:id", (req, res) => {
-
     const validate = validateInput(req.body);
     if (validate) return res.status(400).send(validate.details[0].message);
 
-    const movieGenre = database.find((movie) => movie.id === req.params.id);
+    async function updateGenre() {
 
-    if (!movieGenre) return res.status(404).send("Movie genre not found");
+        const genres = await Genres.find();
 
-    movieGenre.id = req.body.id;
+        const movieGenre = genres.find((obj) => obj.id === req.params.id);
 
-    res.send(movieGenre);
+        if (!movieGenre) return res.status(404).send("Movie genre not found");
+
+        movieGenre.id = req.body.id;
+
+        const result = await movieGenre.save();
+        return res.send(result);
+    };
+    updateGenre();
 });
+
 
 //delete a movie genre
 router.delete("/:id", (req, res) => {
 
-    const movieGenre = database.find((movie) => movie.id === req.params.id);
+    async function deleteGenre() {
+      const genres = await Genres.find();
 
-    if (!movieGenre) return res.status(404).send("Movie genre not found");
+      const movieGenre = genres.find((obj) => obj.id === req.params.id);
 
-    const index = database.indexOf(movieGenre);
+      const index = await Genres.deleteOne(movieGenre);
 
-    database.splice(index, 1);
+      res.send(await Genres.find());
+    }
+    deleteGenre();
 
-    res.send(database);
 });
+
 
 module.exports = router;
