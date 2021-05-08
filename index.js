@@ -1,5 +1,5 @@
 // file paths
-const genres = require("./routes/genres");
+const genres = require("./routes/routes");
 const genreHome = require("./routes/home");
 
 // packages
