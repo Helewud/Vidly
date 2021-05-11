@@ -1,5 +1,5 @@
 const { validateGenre } = require("./joiValidation");
-const Genres = require("../models/movie");
+const Genres = require("../models/genres");
 const express = require("express");
 
 const router = express.Router();
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 
   if (movieGenre)
     return res.status(302).redirect(`/api/genres/${movieGenre.name}`);
-
+  
   let newGenre = new Genres({ name: req.body.name });
   newGenre = await newGenre.save();
   return res.send(newGenre);

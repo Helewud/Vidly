@@ -19,4 +19,15 @@ function validateCustomer(item) {
     return error;
   }
 
-module.exports = { validateGenre, validateCustomer };
+  function validateMovie(item) {
+    const schema = Joi.object({
+      title: Joi.string().required(),
+      genre: Joi.string().required(),
+      numberInStock:Joi.number().required(),
+      dailyRentalRate: Joi.number().required()
+    });
+    const { error, value } = schema.validate(item);
+    return error;
+  }
+
+module.exports = { validateGenre, validateCustomer, validateMovie };
