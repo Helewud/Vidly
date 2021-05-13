@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const Genres = require("../models/genres");
+const { genreSchema } = require("../models/genres");
 
 // Create database Schema
 const movieSchema = new mongoose.Schema({
@@ -8,23 +8,29 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     lowercase: true,
+    trim: true,
+    minlength: 1,
+    maxlength: 255,
   },
-  genre: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: Genres,
-      required: true
+  genreId: {
+    type: genreSchema,
+    required: true,
   },
   numberInStock: {
-      type: Number,
-      required: true,
+    type: Number,
+    required: true,
+    min: 0,
+    max: 255,
   },
   dailyRentalRate: {
-      type: Number,
-      required: true
-  }
+    type: Number,
+    required: true,
+    min: 0,
+    max: 255,
+  },
 });
 
-// Create a database Model from our Schema
+// Create a database Model from the Schema
 const Movies = mongoose.model("Movies", movieSchema);
 
 module.exports = Movies;

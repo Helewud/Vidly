@@ -3,6 +3,7 @@ const genres = require("./routes/genres");
 const customers = require("./routes/customers");
 const genreHome = require("./routes/home");
 const movies = require("./routes/movies");
+const rentals = require("./routes/rentals");
 
 // packages
 const mongoose = require("mongoose");
@@ -32,7 +33,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/genres", genres);
 app.use("/api/genres", genreHome);
 app.use("/api/customers", customers);
-app.use('/api/movies', movies);
+app.use("/api/movies", movies);
+app.use("/api/rentals", rentals);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}`));
