@@ -19,8 +19,8 @@ router.get("/:id", async (req, res) => {
 
 //add a new genre to the catalogue
 router.post("/", async (req, res) => {
-  const validate = validateGenre(req.body);
-  if (validate) return res.status(400).send(validate.details[0].message);
+  const { error } = validateGenre(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   const genres = await Genres.find();
 
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 
   if (movieGenre)
     return res.status(302).redirect(`/api/genres/${movieGenre.name}`);
-  
+
   let newGenre = new Genres({ name: req.body.name });
   newGenre = await newGenre.save();
   return res.send(newGenre);
@@ -36,8 +36,8 @@ router.post("/", async (req, res) => {
 
 //edit and change the name of genre
 router.put("/:id", async (req, res) => {
-  const validate = validateGenre(req.body);
-  if (validate) return res.status(400).send(validate.details[0].message);
+  const { error } = validateGenre(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   const genres = await Genres.find();
 

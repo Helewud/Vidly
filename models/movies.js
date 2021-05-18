@@ -12,7 +12,7 @@ const movieSchema = new mongoose.Schema({
     minlength: 1,
     maxlength: 255,
   },
-  genreId: {
+  genre: {
     type: genreSchema,
     required: true,
   },

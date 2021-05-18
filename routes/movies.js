@@ -28,12 +28,8 @@ router.get("/:id", async (req, res) => {
 // Add a new movie to the list of movies
 router.post("/", async (req, res) => {
   // Validate the req by the user using Joi
-  const validate = validateMovie(req.body);
-  if (validate) return res.status(400).send(validate.details[0].message);
-
-  // Validate if the genre is a valid object id
-  const objId = mongoose.Types.ObjectId.isValid(req.body.genreId);
-  if (!objId) return res.status(400).send("Genre id not valid");
+  const { error } = validateMovie(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   // Find the genre of the movie using genre
   const genres = await Genres.findById(req.body.genreId);
@@ -43,7 +39,7 @@ router.post("/", async (req, res) => {
   const newMovie = new Movies({
     title: req.body.title,
     genre: {
-      _id: req.body.genreId,
+      _id: genres._id,
       name: genres.name,
     },
     numberInStock: req.body.numberInStock,

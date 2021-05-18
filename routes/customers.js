@@ -12,9 +12,7 @@ router.get("/", async (req, res) => {
 
 // Get a particular Customer's Profile
 router.get("/:id", async (req, res) => {
-  const customer = await Customers.find();
-
-  const customerProfile = customer.find((obj) => obj.id === req.params.id);
+  const customerProfile = await Customers.findById(req.params.id);
 
   if (!customerProfile)
     return res.status(404).send("Profile of customer not found");
@@ -24,8 +22,8 @@ router.get("/:id", async (req, res) => {
 
 // Create a Customer's Profile
 router.post("/", async (req, res) => {
-  const validate = validateCustomer(req.body);
-  if (validate) return res.status(400).send(validate.details[0].message);
+  const { error } = validateCustomer(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   let newProfile = new Customers({
     isGold: req.body.isGold,
@@ -40,11 +38,10 @@ router.post("/", async (req, res) => {
 
 // Update a Customer's Profile
 router.put("/:id", async (req, res) => {
-  const validate = validateCustomer(req.body);
-  if (validate) return res.status(400).send(validate.details[0].message);
+  const { error } = validateCustomer(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-  const customer = await Customers.find();
-  const customerProfile = customer.find((obj) => obj.id === req.params.id);
+  const customerProfile = await Customers.findById(req.params.id);
   if (!customerProfile)
     return res.status(404).send("Profile of customer not found");
 
@@ -59,9 +56,9 @@ router.put("/:id", async (req, res) => {
 
 // Delete a Customer's Profile
 router.delete("/:id", async (req, res) => {
-  const dPro = await Customers.findByIdAndDelete(req.params.id);
+  const deletedProfile = await Customers.findByIdAndDelete(req.params.id);
 
-  return res.send(`Profile Deleted successfully ${dPro}`);
+  return res.send(`Profile Deleted successfully ${deletedProfile}`);
 });
 
 module.exports = router;
